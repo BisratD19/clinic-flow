@@ -22,6 +22,7 @@ import {
   MapPin,
   Calendar,
   Stethoscope,
+  ArrowRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -42,11 +43,24 @@ const RegisterPatient = () => {
 
   const [registeredPatient, setRegisteredPatient] = useState<Patient | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePatientInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    
+    // Validate required fields
+    if (!formData.first_name.trim() || !formData.last_name.trim() || !formData.contact_number.trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+    
+    // Move to payment step
+    setStep(2);
+    toast.success('Patient info saved. Please collect payment.');
+  };
 
-    // Simulate API call
+  const handlePayment = async () => {
+    setIsLoading(true);
+    
+    // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     const doctor = mockDoctors.find(d => d.id === parseInt(formData.assigned_doctor_id)) || mockDoctors[0];
@@ -66,24 +80,16 @@ const RegisterPatient = () => {
       updated_at: new Date().toISOString(),
     };
 
-    setRegisteredPatient(newPatient);
-    setStep(3);
-    setIsLoading(false);
-    toast.success('Patient registered successfully!');
-  };
-
-  const handlePayment = async () => {
-    setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
     if (formData.payment_method === 'chapa') {
-      toast.info('Chapa payment link generated (mock)');
+      toast.info('Chapa payment processed (mock)');
     } else {
       toast.success('Cash payment recorded');
     }
     
-    setStep(2);
+    setRegisteredPatient(newPatient);
+    setStep(3);
     setIsLoading(false);
+    toast.success('Patient registered successfully!');
   };
 
   const resetForm = () => {
@@ -111,95 +117,29 @@ const RegisterPatient = () => {
 
       {/* Progress Steps */}
       <div className="flex items-center justify-center gap-4">
-        {[1, 2, 3].map((s) => (
-          <React.Fragment key={s}>
-            <div className={`flex items-center gap-2 ${step >= s ? 'text-primary' : 'text-muted-foreground'}`}>
+        {[
+          { num: 1, label: 'Patient Info' },
+          { num: 2, label: 'Payment' },
+          { num: 3, label: 'Complete' },
+        ].map((s, index) => (
+          <React.Fragment key={s.num}>
+            <div className={`flex items-center gap-2 ${step >= s.num ? 'text-primary' : 'text-muted-foreground'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${
-                step >= s ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                step >= s.num ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}>
-                {step > s ? <Check className="w-4 h-4" /> : s}
+                {step > s.num ? <Check className="w-4 h-4" /> : s.num}
               </div>
               <span className="text-sm font-medium hidden sm:inline">
-                {s === 1 ? 'Payment' : s === 2 ? 'Patient Info' : 'Complete'}
+                {s.label}
               </span>
             </div>
-            {s < 3 && <div className={`w-12 h-0.5 ${step > s ? 'bg-primary' : 'bg-muted'}`} />}
+            {index < 2 && <div className={`w-12 h-0.5 ${step > s.num ? 'bg-primary' : 'bg-muted'}`} />}
           </React.Fragment>
         ))}
       </div>
 
-      {/* Step 1: Payment */}
+      {/* Step 1: Patient Information */}
       {step === 1 && (
-        <Card className="animate-fade-in">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-primary" />
-              Collect Registration Fee
-            </CardTitle>
-            <CardDescription>
-              Registration fee must be collected before proceeding
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="p-4 rounded-lg bg-muted/50 flex items-center justify-between">
-              <span className="text-muted-foreground">Registration Fee</span>
-              <span className="text-2xl font-bold text-foreground">{formData.amount} ETB</span>
-            </div>
-
-            <div className="space-y-3">
-              <Label>Payment Method</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, payment_method: 'cash'})}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    formData.payment_method === 'cash' 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-input hover:border-primary/50'
-                  }`}
-                >
-                  <div className="font-semibold">Cash</div>
-                  <div className="text-sm text-muted-foreground">Immediate confirmation</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, payment_method: 'chapa'})}
-                  className={`p-4 rounded-lg border-2 text-left transition-all ${
-                    formData.payment_method === 'chapa' 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-input hover:border-primary/50'
-                  }`}
-                >
-                  <div className="font-semibold">Chapa</div>
-                  <div className="text-sm text-muted-foreground">Online payment</div>
-                </button>
-              </div>
-            </div>
-
-            <Button 
-              onClick={handlePayment} 
-              className="w-full" 
-              size="lg"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  {formData.payment_method === 'cash' ? 'Confirm Cash Payment' : 'Generate Chapa Link'}
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Step 2: Patient Information */}
-      {step === 2 && (
         <Card className="animate-fade-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -211,7 +151,7 @@ const RegisterPatient = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handlePatientInfoSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">First Name *</Label>
@@ -322,25 +262,86 @@ const RegisterPatient = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
-                  Back
-                </Button>
-                <Button type="submit" className="flex-1" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Registering...
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Register Patient
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button type="submit" className="w-full" size="lg">
+                <ArrowRight className="w-4 h-4 mr-2" />
+                Continue to Payment
+              </Button>
             </form>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Step 2: Payment */}
+      {step === 2 && (
+        <Card className="animate-fade-in">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-primary" />
+              Collect Registration Fee
+            </CardTitle>
+            <CardDescription>
+              Patient: <span className="font-medium text-foreground">{formData.first_name} {formData.last_name}</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="p-4 rounded-lg bg-muted/50 flex items-center justify-between">
+              <span className="text-muted-foreground">Registration Fee</span>
+              <span className="text-2xl font-bold text-foreground">{formData.amount} ETB</span>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Payment Method</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, payment_method: 'cash'})}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    formData.payment_method === 'cash' 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-input hover:border-primary/50'
+                  }`}
+                >
+                  <div className="font-semibold">Cash</div>
+                  <div className="text-sm text-muted-foreground">Immediate confirmation</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, payment_method: 'chapa'})}
+                  className={`p-4 rounded-lg border-2 text-left transition-all ${
+                    formData.payment_method === 'chapa' 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-input hover:border-primary/50'
+                  }`}
+                >
+                  <div className="font-semibold">Chapa</div>
+                  <div className="text-sm text-muted-foreground">Online payment</div>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
+                Back
+              </Button>
+              <Button 
+                onClick={handlePayment} 
+                className="flex-1" 
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    {formData.payment_method === 'cash' ? 'Confirm Cash Payment' : 'Process Chapa Payment'}
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
