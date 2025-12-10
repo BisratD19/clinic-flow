@@ -245,13 +245,13 @@ const RegisterPatient = () => {
                   <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
                   <Select 
                     value={formData.assigned_doctor_id} 
-                    onValueChange={(value) => setFormData({...formData, assigned_doctor_id: value})}
+                    onValueChange={(value) => setFormData({...formData, assigned_doctor_id: value === 'auto' ? '' : value})}
                   >
                     <SelectTrigger className="pl-10">
                       <SelectValue placeholder="Auto-assign (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Auto-assign</SelectItem>
+                      <SelectItem value="auto">Auto-assign</SelectItem>
                       {mockDoctors.map((doctor) => (
                         <SelectItem key={doctor.id} value={doctor.id.toString()}>
                           Dr. {doctor.first_name} {doctor.last_name}
