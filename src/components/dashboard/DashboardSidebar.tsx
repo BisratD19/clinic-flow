@@ -24,6 +24,8 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'doctor', 'receptionist'] },
   { label: 'User Management', href: '/dashboard/users', icon: Users, roles: ['admin'] },
+  { label: 'Patients', href: '/dashboard/patients', icon: Users, roles: ['admin'] },
+  { label: 'All Appointments', href: '/dashboard/all-appointments', icon: Calendar, roles: ['admin'] },
   { label: 'Register Patient', href: '/dashboard/register-patient', icon: UserPlus, roles: ['receptionist'] },
   { label: 'Patient Queue', href: '/dashboard/queue', icon: ClipboardList, roles: ['receptionist'] },
   { label: 'Appointments', href: '/dashboard/appointments', icon: Calendar, roles: ['doctor', 'receptionist'] },

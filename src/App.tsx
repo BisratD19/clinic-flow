@@ -12,6 +12,8 @@ import UserManagement from "./pages/UserManagement";
 import RegisterPatient from "./pages/RegisterPatient";
 import PatientQueue from "./pages/PatientQueue";
 import Appointments from "./pages/Appointments";
+import AllAppointments from "./pages/AllAppointments";
+import Patients from "./pages/Patients";
 import Treatments from "./pages/Treatments";
 import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
@@ -36,6 +38,8 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="users" element={<UserManagement />} />
+              <Route path="patients" element={<Patients />} />
+              <Route path="all-appointments" element={<AllAppointments />} />
               <Route path="register-patient" element={<RegisterPatient />} />
               <Route path="queue" element={<PatientQueue />} />
               <Route path="appointments" element={<Appointments />} />
