@@ -5,11 +5,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Search, Calendar, Clock, User, CheckCircle, XCircle, AlertCircle, Edit, Eye, Lock } from 'lucide-react';
+import { toast } from 'sonner';
 
 const AllAppointments = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editTab, setEditTab] = useState('profile');
+  const [editForm, setEditForm] = useState({
+    notes: '',
+    status: '',
+  });
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
 
   const filteredAppointments = mockAppointments.filter(appointment => {
     const matchesSearch = 
@@ -45,6 +60,36 @@ const AllAppointments = () => {
     pending: mockAppointments.filter(a => a.status === 'pending').length,
     completed: mockAppointments.filter(a => a.status === 'completed').length,
     cancelled: mockAppointments.filter(a => a.status === 'cancelled').length,
+  };
+
+  const handleEditClick = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setEditForm({
+      notes: appointment.notes || '',
+      status: appointment.status,
+    });
+    setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setEditTab('profile');
+    setIsEditOpen(true);
+  };
+
+  const handleSaveProfile = () => {
+    toast.success('Appointment updated successfully');
+    setIsEditOpen(false);
+  };
+
+  const handleChangePassword = () => {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    toast.success('Password changed successfully');
+    setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setIsEditOpen(false);
   };
 
   return (
@@ -120,7 +165,7 @@ const AllAppointments = () => {
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Date & Time</th>
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Type</th>
                   <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Status</th>
-                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Notes</th>
+                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -162,8 +207,11 @@ const AllAppointments = () => {
                     <td className="py-3 px-2">
                       {getStatusBadge(appointment.status)}
                     </td>
-                    <td className="py-3 px-2 text-sm text-muted-foreground max-w-[200px] truncate">
-                      {appointment.notes || '-'}
+                    <td className="py-3 px-2">
+                      <Button variant="ghost" size="sm" onClick={() => handleEditClick(appointment)}>
+                        <Edit className="h-4 w-4 mr-1" />
+                        Edit
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -177,6 +225,105 @@ const AllAppointments = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Appointment</DialogTitle>
+          </DialogHeader>
+          
+          <Tabs value={editTab} onValueChange={setEditTab}>
+            <TabsList className="w-full">
+              <TabsTrigger value="profile" className="flex-1">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Profile
+              </TabsTrigger>
+              <TabsTrigger value="password" className="flex-1">
+                <Lock className="h-4 w-4 mr-2" />
+                Change Password
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="profile" className="space-y-4 mt-4">
+              {selectedAppointment && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-muted-foreground">Patient</Label>
+                      <p className="font-medium">{selectedAppointment.patient.first_name} {selectedAppointment.patient.last_name}</p>
+                    </div>
+                    <div>
+                      <Label className="text-muted-foreground">Doctor</Label>
+                      <p className="font-medium">Dr. {selectedAppointment.doctor.first_name} {selectedAppointment.doctor.last_name}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status</Label>
+                    <select
+                      id="status"
+                      value={editForm.status}
+                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Input
+                      id="notes"
+                      value={editForm.notes}
+                      onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                      placeholder="Add notes..."
+                    />
+                  </div>
+                </>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                <Button onClick={handleSaveProfile}>Save Changes</Button>
+              </DialogFooter>
+            </TabsContent>
+            
+            <TabsContent value="password" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Current Password</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                <Button onClick={handleChangePassword}>Change Password</Button>
+              </DialogFooter>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
