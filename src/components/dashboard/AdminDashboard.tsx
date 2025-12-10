@@ -55,6 +55,53 @@ const AdminDashboard = () => {
         />
       </div>
 
+      {/* All Patients */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-lg">All Patients</CardTitle>
+          <Badge variant="secondary">{mockPatients.length} total</Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Patient</th>
+                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Contact</th>
+                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Gender</th>
+                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Queue #</th>
+                  <th className="text-left py-3 px-2 text-sm font-medium text-muted-foreground">Registered</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mockPatients.map((patient) => (
+                  <tr key={patient.id} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                    <td className="py-3 px-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-semibold">
+                          {patient.first_name[0]}{patient.last_name[0]}
+                        </div>
+                        <span className="font-medium text-foreground">{patient.first_name} {patient.last_name}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-2 text-sm text-muted-foreground">{patient.contact_number}</td>
+                    <td className="py-3 px-2">
+                      <Badge variant="secondary" className="capitalize">{patient.gender}</Badge>
+                    </td>
+                    <td className="py-3 px-2">
+                      <Badge variant="outline">#{patient.queue_number}</Badge>
+                    </td>
+                    <td className="py-3 px-2 text-sm text-muted-foreground">
+                      {new Date(patient.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Users */}
