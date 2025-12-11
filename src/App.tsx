@@ -16,6 +16,7 @@ import AllAppointments from "./pages/AllAppointments";
 import Patients from "./pages/Patients";
 import Treatments from "./pages/Treatments";
 import Payments from "./pages/Payments";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 // Components
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="appointments" element={<Appointments />} />
               <Route path="treatments" element={<Treatments />} />
               <Route path="payments" element={<Payments />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
 
             {/* Redirects */}
