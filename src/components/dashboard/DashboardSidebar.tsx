@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
   { label: 'Appointments', href: '/dashboard/appointments', icon: Calendar, roles: ['doctor', 'receptionist'] },
   { label: 'Treatments', href: '/dashboard/treatments', icon: Stethoscope, roles: ['doctor'] },
   { label: 'Payments', href: '/dashboard/payments', icon: CreditCard, roles: ['receptionist'] },
+  { label: 'My Profile', href: '/dashboard/profile', icon: Settings, roles: ['admin', 'doctor', 'receptionist'] },
 ];
 
 const DashboardSidebar = () => {
