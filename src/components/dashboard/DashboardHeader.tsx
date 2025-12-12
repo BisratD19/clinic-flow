@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Bell, LogOut, User, ChevronDown } from 'lucide-react';
+import { Bell, LogOut, ChevronDown } from 'lucide-react';
+import { MobileSidebarTrigger } from './DashboardSidebar';
 
 const DashboardHeader = () => {
   const { user, logout } = useAuth();
@@ -31,15 +32,20 @@ const DashboardHeader = () => {
   };
 
   return (
-    <header className="h-16 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-6 sticky top-0 z-10">
-      <div>
-        <p className="text-sm text-muted-foreground">{getGreeting()},</p>
-        <h2 className="font-semibold text-foreground">
-          {user.first_name} {user.last_name}
-        </h2>
+    <header className="h-16 border-b bg-card/80 backdrop-blur-sm flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
+      <div className="flex items-center gap-3">
+        {/* Mobile Menu Trigger */}
+        <MobileSidebarTrigger />
+        
+        <div>
+          <p className="text-sm text-muted-foreground hidden sm:block">{getGreeting()},</p>
+          <h2 className="font-semibold text-foreground text-sm sm:text-base">
+            {user.first_name} {user.last_name}
+          </h2>
+        </div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="w-5 h-5" />
@@ -49,11 +55,11 @@ const DashboardHeader = () => {
         {/* User dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2">
+            <Button variant="ghost" className="gap-1 sm:gap-2 px-2 sm:px-3">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
                 {user.first_name[0]}{user.last_name[0]}
               </div>
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
