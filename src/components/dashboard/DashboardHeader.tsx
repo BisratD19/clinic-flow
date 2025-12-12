@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Bell, LogOut, ChevronDown } from 'lucide-react';
-import { MobileSidebarTrigger } from './DashboardSidebar';
+import { MobileSidebarTrigger, DesktopSidebarTrigger } from './DashboardSidebar';
 
 const DashboardHeader = () => {
   const { user, logout } = useAuth();
@@ -36,6 +36,9 @@ const DashboardHeader = () => {
       <div className="flex items-center gap-3">
         {/* Mobile Menu Trigger */}
         <MobileSidebarTrigger />
+        
+        {/* Desktop Sidebar Toggle */}
+        <DesktopSidebarTrigger />
         
         <div>
           <p className="text-sm text-muted-foreground hidden sm:block">{getGreeting()},</p>
