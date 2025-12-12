@@ -71,7 +71,7 @@ const SidebarContentComponent = ({ user, filteredNavItems, location, onNavClick 
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-1">
         {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.href;
           const Icon = item.icon;
@@ -158,7 +158,7 @@ const DashboardSidebar = () => {
   const filteredNavItems = navItems.filter(item => item.roles.includes(user.role));
 
   return (
-    <aside className="hidden lg:flex w-64 bg-sidebar min-h-screen flex-col border-r border-sidebar-border">
+    <aside className="hidden lg:flex w-64 bg-sidebar h-screen flex-col border-r border-sidebar-border sticky top-0">
       <SidebarContentComponent 
         user={user} 
         filteredNavItems={filteredNavItems} 
