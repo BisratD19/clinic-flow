@@ -12,7 +12,11 @@ import {
   ClipboardList,
   CreditCard,
   Settings,
+  Menu,
+  X,
 } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
 
 interface NavItem {
   label: string;
@@ -34,14 +38,14 @@ const navItems: NavItem[] = [
   { label: 'My Profile', href: '/dashboard/profile', icon: Settings, roles: ['admin', 'doctor', 'receptionist'] },
 ];
 
-const DashboardSidebar = () => {
-  const { user } = useAuth();
-  const location = useLocation();
+interface SidebarContentProps {
+  user: NonNullable<ReturnType<typeof useAuth>['user']>;
+  filteredNavItems: NavItem[];
+  location: ReturnType<typeof useLocation>;
+  onNavClick?: () => void;
+}
 
-  if (!user) return null;
-
-  const filteredNavItems = navItems.filter(item => item.roles.includes(user.role));
-
+const SidebarContentComponent = ({ user, filteredNavItems, location, onNavClick }: SidebarContentProps) => {
   const getRoleBadgeColor = () => {
     switch (user.role) {
       case 'admin': return 'bg-admin';
@@ -52,7 +56,7 @@ const DashboardSidebar = () => {
   };
 
   return (
-    <aside className="w-64 bg-sidebar min-h-screen flex flex-col border-r border-sidebar-border">
+    <>
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
@@ -67,7 +71,7 @@ const DashboardSidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {filteredNavItems.map((item) => {
           const isActive = location.pathname === item.href;
           const Icon = item.icon;
@@ -76,6 +80,7 @@ const DashboardSidebar = () => {
             <NavLink
               key={item.href}
               to={item.href}
+              onClick={onNavClick}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
@@ -109,6 +114,56 @@ const DashboardSidebar = () => {
           </div>
         </div>
       </div>
+    </>
+  );
+};
+
+// Mobile Sidebar Trigger Button
+export const MobileSidebarTrigger = () => {
+  const { user } = useAuth();
+  const location = useLocation();
+  const [open, setOpen] = React.useState(false);
+
+  if (!user) return null;
+
+  const filteredNavItems = navItems.filter(item => item.roles.includes(user.role));
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="lg:hidden">
+          <Menu className="w-5 h-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-64 p-0 bg-sidebar">
+        <div className="flex flex-col h-full">
+          <SidebarContentComponent 
+            user={user} 
+            filteredNavItems={filteredNavItems} 
+            location={location}
+            onNavClick={() => setOpen(false)}
+          />
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+const DashboardSidebar = () => {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  if (!user) return null;
+
+  const filteredNavItems = navItems.filter(item => item.roles.includes(user.role));
+
+  return (
+    <aside className="hidden lg:flex w-64 bg-sidebar min-h-screen flex-col border-r border-sidebar-border">
+      <SidebarContentComponent 
+        user={user} 
+        filteredNavItems={filteredNavItems} 
+        location={location}
+      />
     </aside>
   );
 };
